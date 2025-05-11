@@ -1,0 +1,60 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Custom scrollbar */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+.terminal-output::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+.terminal-output::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+.cursor {
+    animation: blink 1s infinite;
+}
+
+/* Custom color picker */
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.color-option:hover {
+    transform: scale(1.1);
+}
+.color-option.active {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px white;
+}
+
+/* Full screen terminal */
+.terminal-container {
+    height: calc(100vh - 60px);
+}
+
+/* Settings panel */
+.settings-panel {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    z-index: 100;
+    width: 300px;
+}
