@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Screen Web Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="h-full flex flex-col">
+        <div class="flex justify-between items-center p-4 bg-gray-800">
+            <h1 class="text-2xl font-bold text-cyan-400">Web Terminal</h1>
+            <button id="settings-btn" class="text-gray-400 hover:text-white">
+                <i class="fas fa-cog text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel bg-gray-800 rounded-lg p-4 hidden shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Terminal Settings</h2>
+                <button id="close-settings" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Terminal Theme</label>
+                <div class="flex gap-3">
+                    <div class="color-option bg-cyan-400 active" data-color="cyan"></div>
+                    <div class="color-option bg-green-400" data-color="green"></div>
+                    <div class="color-option bg-purple-400" data-color="purple"></div>
+                    <div class="color-option bg-red-400" data-color="red"></div>
+                    <div class="color-option bg-yellow-400" data-color="yellow"></div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Background</label>
+                <div class="flex gap-3">
+                    <div class="color-option bg-gray-900 active" data-bg="gray-900"></div>
+                    <div class="color-option bg-gray-800" data-bg="gray-800"></div>
+                    <div class="color-option bg-black" data-bg="black"></div>
+                    <div class="color-option bg-slate-900" data-bg="slate-900"></div>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-2">Font Size</label>
+                <select id="font-size" class="bg-gray-700 text-white rounded px-3 py-1">
+                    <option value="sm">Small</option>
+                    <option value="base" selected>Medium</option>
+                    <option value="lg">Large</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Terminal Container -->
+        <div id="terminal-container" class="terminal-container bg-gray-800 flex flex-col">
+            <div class="terminal-output p-4 overflow-y-auto flex-1 font-mono text-sm" id="terminal-output">
+                <div class="text-cyan-400">Welcome to Web Terminal!</div>
+                <div class="text-cyan-400">Type 'help' to see available commands.</div>
+                <div class="my-2"></div>
+            </div>
+            
+            <div class="border-t border-gray-700 p-2 flex items-center bg-gray-800">
+                <span id="prompt" class="text-cyan-400 mr-2">user@web:~$</span>
+                <input type="text" id="terminal-input" class="bg-transparent flex-1 outline-none" autofocus>
+                <span class="cursor ml-1">|</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
