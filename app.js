@@ -17,7 +17,129 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTheme = 'cyan';
     
     // Available commands
+    function saveFS() {
+    localStorage.setItem('virtualFS', JSON.stringify(virtualFS));
+}
+
     const commands = {
+      rm: {
+    description: 'Delete a file: rm <filename>',
+    execute: (args) => {
+        if (args.length === 0) {
+            addOutput('Usage: rm <filename>', true);
+            return;
+        }
+        const filename = args[0];
+        if (virtualFS[filename] !== undefined) {
+            delete virtualFS[filename];
+            saveFS();
+            addOutput(`File '${filename}' deleted.`);
+        } else {
+            addOutput(`File '${filename}' not found.`, true);
+        }
+    }
+},
+clearfs: {
+    description: "Clear all saved files",
+    execute: () => {
+        if (confirm("Are you sure you want to delete all files?")) {
+            for (const key in virtualFS) delete virtualFS[key];
+            localStorage.removeItem('virtualFS');
+            addOutput("Virtual filesystem cleared.");
+        }
+    }
+},
+mv: {
+    description: "Rename a file: mv <old-filename> <new-filename>",
+    execute: (args) => {
+        if (args.length !== 2) {
+            addOutput("Usage: mv <old-filename> <new-filename>", true);
+            return;
+        }
+
+        const [oldName, newName] = args;
+
+        if (!virtualFS.hasOwnProperty(oldName)) {
+            addOutput(`File '${oldName}' not found.`, true);
+            return;
+        }
+
+        if (virtualFS.hasOwnProperty(newName)) {
+            addOutput(`File '${newName}' already exists.`, true);
+            return;
+        }
+
+        virtualFS[newName] = virtualFS[oldName];
+        delete virtualFS[oldName];
+        saveFS();
+        addOutput(`Renamed '${oldName}' to '${newName}'.`);
+    }
+},
+run: {
+    description: 'Run JavaScript: run <code>',
+    execute: (args) => {
+        const code = args.join(' ');
+        try {
+            const result = Function('"use strict";return (' + code + ')')();
+            addOutput(`Result: ${result}`);
+        } catch (e) {
+            addOutput(`Error: ${e}`, true);
+        }
+    }
+},
+      export: {
+    description: 'Export a file: export <filename>',
+    execute: (args) => {
+        if (args.length === 0) {
+            addOutput('Usage: export <filename>', true);
+            return;
+        }
+        const filename = args[0];
+        if (virtualFS[filename] === undefined) {
+            addOutput(`File '${filename}' not found.`, true);
+            return;
+        }
+
+        const blob = new Blob([virtualFS[filename]], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+        addOutput(`File '${filename}' downloaded.`);
+    }
+},
+import: {
+    description: 'Import a local file into the virtual filesystem',
+    execute: () => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.txt,.md,.json,.js,.html,.css';
+
+        fileInput.onchange = () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                addOutput('No file selected.', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                virtualFS[file.name] = e.target.result;
+                addOutput(`File '${file.name}' imported.`);
+                localStorage.setItem('virtualFS', JSON.stringify(virtualFS));
+                saveFS();
+            };
+            reader.onerror = () => {
+                addOutput(`Failed to read file '${file.name}'.`, true);
+            };
+            reader.readAsText(file);
+        };
+
+        fileInput.click();
+    }
+},
         help: {
             description: 'Show available commands',
             execute: () => {
@@ -105,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     virtualFS[filename] = '';
                     addOutput(`File '${filename}' created.`);
+                    saveFS();
                 }
             }
         },
@@ -142,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // Virtual filesystem (in-memory)
-    const virtualFS = {};
+    const virtualFS = JSON.parse(localStorage.getItem('virtualFS')) || {};
 
     // Helper to escape HTML for safe display
     function escapeHTML(str) {
@@ -194,6 +317,8 @@ document.addEventListener('DOMContentLoaded', function() {
             virtualFS[filename] = newContent;
             addOutput(`File '${filename}' updated.`);
             modal.remove();
+            saveFS();
+            
         };
         document.getElementById('editor-cancel').onclick = function() {
             addOutput('Edit cancelled.');
@@ -375,4 +500,41 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize terminal
     initTerminal();
+    
+    // Export Filesystem
+document.getElementById('export-fs').addEventListener('click', () => {
+    const dataStr = JSON.stringify(virtualFS, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'virtualFS-backup.json';
+    a.click();
+
+    URL.revokeObjectURL(url);
+});
+
+// Import Filesystem
+document.getElementById('import-fs').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (typeof imported === 'object' && imported !== null) {
+                Object.assign(virtualFS, imported);
+                saveFS();
+                addOutput('Filesystem imported successfully.');
+            } else {
+                addOutput('Invalid file format.', true);
+            }
+        } catch (err) {
+            addOutput('Error importing filesystem: ' + err.message, true);
+        }
+    };
+    reader.readAsText(file);
+});
 });
