@@ -24,7 +24,15 @@
                 <button id="close-settings" class="text-gray-400 hover:text-white">
                     <i class="fas fa-times"></i>
                 </button>
-            </div>
+</div>
+<!-- Import/Export Filesystem Buttons -->
+<div class="flex justify-between mb-4">
+    <button id="export-fs" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-[48%]">Export Filesystem</button>
+    <label class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer w-[48%] text-center">
+        Import Filesystem
+        <input type="file" id="import-fs" accept="application/json" class="hidden" />
+    </label>
+</div>
             
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">Terminal Theme</label>
